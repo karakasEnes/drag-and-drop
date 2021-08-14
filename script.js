@@ -4,7 +4,7 @@ const addItemContainers = document.querySelectorAll(".add-container");
 const addItems = document.querySelectorAll(".add-item");
 
 // Item Lists
-const itemLists = document.querySelectorAll(".drag-item-list");
+const listColumns = document.querySelectorAll(".drag-item-list");
 const backlogList = document.getElementById("backlog-list");
 const progressList = document.getElementById("progress-list");
 const completeList = document.getElementById("complete-list");
@@ -12,6 +12,8 @@ const onHoldList = document.getElementById("on-hold-list");
 
 // Items
 let updatedOnLoad = false;
+let currentColumn;
+let draggedItem;
 
 // Initialize Arrays
 let backlogListArray = [];
@@ -58,16 +60,44 @@ function updateSavedColumns() {
   // localStorage.setItem("onHoldItems", JSON.stringify(onHoldListArray));
 }
 
+//drag//drop settings
+function drag(ev) {
+  draggedItem = ev.target;
+}
+
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  //remove Class from columns
+  listColumns.forEach((col) => {
+    col.classList.remove("over");
+  });
+
+  // add item to column that we are oN
+  listColumns[currentColumn].appendChild(draggedItem);
+}
+
+function dragEnter(columnIndex) {
+  listColumns[columnIndex].classList.add("over");
+  currentColumn = columnIndex;
+}
+
 // Create DOM Elements for each list item
 function createItemEl(columnEl, column, item, index) {
   console.log("columnEl:", columnEl);
   console.log("column:", column);
   console.log("item:", item);
   console.log("index:", index);
+
   // List Item
   const listEl = document.createElement("li");
   listEl.classList.add("drag-item");
   listEl.textContent = item;
+  listEl.draggable = true;
+  listEl.setAttribute("ondragstart", "drag(event)");
 
   //appendItem
   columnEl.appendChild(listEl);
