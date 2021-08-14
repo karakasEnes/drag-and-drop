@@ -2,6 +2,7 @@ const addBtns = document.querySelectorAll(".add-btn:not(.solid)");
 const saveItemBtns = document.querySelectorAll(".solid");
 const addItemContainers = document.querySelectorAll(".add-container");
 const addItems = document.querySelectorAll(".add-item");
+
 // Item Lists
 const itemLists = document.querySelectorAll(".drag-item-list");
 const backlogList = document.getElementById("backlog-list");
@@ -10,6 +11,7 @@ const completeList = document.getElementById("complete-list");
 const onHoldList = document.getElementById("on-hold-list");
 
 // Items
+let updatedOnLoad = false;
 
 // Initialize Arrays
 let backlogListArray = [];
@@ -55,8 +57,6 @@ function updateSavedColumns() {
   // localStorage.setItem("completeItems", JSON.stringify(completeListArray));
   // localStorage.setItem("onHoldItems", JSON.stringify(onHoldListArray));
 }
-getSavedColumns();
-updateSavedColumns();
 
 // Create DOM Elements for each list item
 function createItemEl(columnEl, column, item, index) {
@@ -67,14 +67,29 @@ function createItemEl(columnEl, column, item, index) {
   // List Item
   const listEl = document.createElement("li");
   listEl.classList.add("drag-item");
+  listEl.textContent = item;
+
+  //appendItem
+  columnEl.appendChild(listEl);
 }
 
 // Update Columns in DOM - Reset HTML, Filter Array, Update localStorage
 function updateDOM() {
   // Check localStorage once
+  if (!updatedOnLoad) {
+    console.log("get saved func runned");
+    getSavedColumns();
+  }
   // Backlog Column
+  backlogListArray.forEach((backlogItem, index) => {
+    createItemEl(backlogList, 0, backlogItem, index);
+  });
+
   // Progress Column
   // Complete Column
   // On Hold Column
   // Run getSavedColumns only once, Update Local Storage
 }
+
+// onLoad
+updateDOM();
