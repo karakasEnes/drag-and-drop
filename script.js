@@ -80,14 +80,27 @@ function updateDOM() {
     console.log("get saved func runned");
     getSavedColumns();
   }
+
   // Backlog Column
   backlogListArray.forEach((backlogItem, index) => {
     createItemEl(backlogList, 0, backlogItem, index);
   });
 
   // Progress Column
+  progressListArray.forEach((progressItem, index) => {
+    createItemEl(progressList, 0, progressItem, index);
+  });
+
   // Complete Column
+  completeListArray.forEach((completeItem, index) => {
+    createItemEl(completeList, 0, completeItem, index);
+  });
+
   // On Hold Column
+  onHoldListArray.forEach((onHoldItem, index) => {
+    createItemEl(onHoldList, 0, onHoldItem, index);
+  });
+
   // Run getSavedColumns only once, Update Local Storage
 }
 
