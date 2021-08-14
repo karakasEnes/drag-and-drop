@@ -14,6 +14,7 @@ const onHoldList = document.getElementById("on-hold-list");
 let updatedOnLoad = false;
 let currentColumn;
 let draggedItem;
+let draggedColumnIndex;
 
 // Initialize Arrays
 let backlogListArray = [];
@@ -63,6 +64,19 @@ function updateSavedColumns() {
 //drag//drop settings
 function drag(ev) {
   draggedItem = ev.target;
+
+  //indentify draggedColumnIndex
+  const draggedItemParentId = draggedItem.parentElement.id;
+
+  if (draggedItemParentId === "backlog-list") {
+    draggedColumnIndex = 0;
+  } else if (draggedItemParentId === "progress-list") {
+    draggedColumnIndex = 1;
+  } else if (draggedItemParentId === "complete-list") {
+    draggedColumnIndex = 2;
+  } else if (draggedItemParentId === "on-hold-list") {
+    draggedColumnIndex = 3;
+  }
 }
 
 function allowDrop(ev) {
@@ -78,6 +92,10 @@ function drop(ev) {
 
   // add item to column that we are oN
   listColumns[currentColumn].appendChild(draggedItem);
+
+  //update Arrays after drop finished
+  updateArrays();
+  updateSavedColumns();
 }
 
 function dragEnter(columnIndex) {
@@ -85,12 +103,31 @@ function dragEnter(columnIndex) {
   currentColumn = columnIndex;
 }
 
+// when drop happen this function should run
+function updateArrays() {
+  listArrays = [
+    backlogListArray,
+    progressListArray,
+    completeListArray,
+    onHoldListArray,
+  ];
+
+  const droppedItemText = draggedItem.textContent;
+
+  //dropped array
+  listArrays[currentColumn].push(droppedItemText);
+
+  //dragged array
+  const draggedArray = listArrays[draggedColumnIndex];
+  draggedArray.splice(draggedArray.indexOf(droppedItemText, 1));
+}
+
 // Create DOM Elements for each list item
 function createItemEl(columnEl, column, item, index) {
-  console.log("columnEl:", columnEl);
-  console.log("column:", column);
-  console.log("item:", item);
-  console.log("index:", index);
+  // console.log("columnEl:", columnEl);
+  // console.log("column:", column);
+  // console.log("item:", item);
+  // console.log("index:", index);
 
   // List Item
   const listEl = document.createElement("li");
@@ -107,31 +144,72 @@ function createItemEl(columnEl, column, item, index) {
 function updateDOM() {
   // Check localStorage once
   if (!updatedOnLoad) {
-    console.log("get saved func runned");
     getSavedColumns();
   }
 
   // Backlog Column
+  backlogList.textContent = "";
   backlogListArray.forEach((backlogItem, index) => {
     createItemEl(backlogList, 0, backlogItem, index);
   });
 
   // Progress Column
+  progressList.textContent = "";
   progressListArray.forEach((progressItem, index) => {
     createItemEl(progressList, 0, progressItem, index);
   });
 
   // Complete Column
+  completeList.textContent = "";
   completeListArray.forEach((completeItem, index) => {
     createItemEl(completeList, 0, completeItem, index);
   });
 
   // On Hold Column
+  onHoldList.textContent = "";
   onHoldListArray.forEach((onHoldItem, index) => {
     createItemEl(onHoldList, 0, onHoldItem, index);
   });
 
   // Run getSavedColumns only once, Update Local Storage
+  updatedOnLoad = true;
+  // updateSavedColumns();
+}
+
+// add item & hide item
+function showTextArea(indexNumber) {
+  addBtns[indexNumber].style.visibility = "hidden";
+  saveItemBtns[indexNumber].style.display = "flex";
+  addItemContainers[indexNumber].style.display = "flex";
+  textEditAble(indexNumber);
+}
+
+function hideTextArea(indexNumber) {
+  addBtns[indexNumber].style.visibility = "visible";
+  saveItemBtns[indexNumber].style.display = "none";
+  addItemContainers[indexNumber].style.display = "none";
+  textAreaToColumnArray(indexNumber);
+}
+
+//textArea (if you click addItem button this will work)
+function textEditAble(indexNumber) {
+  const textArea = addItems[indexNumber];
+  textArea.contentEditable = true;
+  textArea.textContent = "";
+}
+
+//textAreaToLocalArray (if you click saveItem button this will work)
+function textAreaToColumnArray(indexNumber) {
+  listArrays = [
+    backlogListArray,
+    progressListArray,
+    completeListArray,
+    onHoldListArray,
+  ];
+  const textArea = addItems[indexNumber];
+  listArrays[indexNumber].push(textArea.textContent);
+  updateSavedColumns();
+  updateDOM();
 }
 
 // onLoad
