@@ -39,6 +39,10 @@ function getSavedColumns() {
     onHoldListArray = ["Being uncool"];
   }
 }
+//filterArray
+function filteredArrayFunc(arr) {
+  return arr.filter((item) => item !== null);
+}
 
 // Set localStorage Arrays
 function updateSavedColumns() {
@@ -52,8 +56,14 @@ function updateSavedColumns() {
   const arrayNames = ["backlog", "progress", "complete", "onHold"];
 
   arrayNames.forEach((name, index) => {
-    localStorage.setItem(`${name}Items`, JSON.stringify(listArrays[index]));
+    const filteredArray = filteredArrayFunc(listArrays[index]);
+    localStorage.setItem(`${name}Items`, JSON.stringify(filteredArray));
   });
+
+  backlogListArray = filteredArrayFunc(backlogListArray);
+  progressListArray = filteredArrayFunc(progressListArray);
+  completeListArray = filteredArrayFunc(completeListArray);
+  onHoldListArray = filteredArrayFunc(onHoldListArray);
 
   // localStorage.setItem("backlogItems", JSON.stringify(backlogListArray));
   // localStorage.setItem("progressItems", JSON.stringify(progressListArray));
@@ -122,6 +132,26 @@ function updateArrays() {
   draggedArray.splice(draggedArray.indexOf(droppedItemText, 1));
 }
 
+//updateItem
+function updateItem(column, index) {
+  listArrays = [
+    backlogListArray,
+    progressListArray,
+    completeListArray,
+    onHoldListArray,
+  ];
+
+  const selectedColumn = listColumns[column];
+  const selectedItem = selectedColumn.children[index];
+
+  if (!selectedItem.textContent) {
+    delete listArrays[column][index];
+  }
+
+  updateSavedColumns();
+  updateDOM();
+}
+
 // Create DOM Elements for each list item
 function createItemEl(columnEl, column, item, index) {
   // console.log("columnEl:", columnEl);
@@ -136,6 +166,8 @@ function createItemEl(columnEl, column, item, index) {
   listEl.draggable = true;
   listEl.setAttribute("ondragstart", "drag(event)");
 
+  listEl.contentEditable = true;
+  listEl.setAttribute("onfocusout", `updateItem(${column}, ${index})`);
   //appendItem
   columnEl.appendChild(listEl);
 }
@@ -156,19 +188,19 @@ function updateDOM() {
   // Progress Column
   progressList.textContent = "";
   progressListArray.forEach((progressItem, index) => {
-    createItemEl(progressList, 0, progressItem, index);
+    createItemEl(progressList, 1, progressItem, index);
   });
 
   // Complete Column
   completeList.textContent = "";
   completeListArray.forEach((completeItem, index) => {
-    createItemEl(completeList, 0, completeItem, index);
+    createItemEl(completeList, 2, completeItem, index);
   });
 
   // On Hold Column
   onHoldList.textContent = "";
   onHoldListArray.forEach((onHoldItem, index) => {
-    createItemEl(onHoldList, 0, onHoldItem, index);
+    createItemEl(onHoldList, 3, onHoldItem, index);
   });
 
   // Run getSavedColumns only once, Update Local Storage
